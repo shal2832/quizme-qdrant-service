@@ -13,7 +13,7 @@ def set_file(file_name: str):
 def list_collections():
     return {"collections": qdrant_service_instance.get_collections()}
 
-@router.get("/split-documents")
+@router.post("/split-documents")
 def split_documents(documents: list):
     try:
         documents = qdrant_service_instance.textSplitter.create_documents(documents) 
