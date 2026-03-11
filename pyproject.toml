@@ -10,5 +10,4 @@ dependencies = [
     "langchain-community>=0.4.1",
     "langchain-qdrant>=1.1.0",
     "langchain-huggingface>=1.2.0",
-    "qdrant-client>=1.17.0",
-    "sentence-transformers>=5.2.3"]
+    "qdrant-client>=1.17.0"]

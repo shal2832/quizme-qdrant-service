@@ -4,7 +4,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient, models
 from qdrant_client.http import models as rest
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from fastapi import HTTPException
 
 
@@ -22,8 +22,9 @@ class qdrantService:
             chunk_size= 1000,
             chunk_overlap=100
         )
-        self.hf_embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        self.hf_embeddings = HuggingFaceEndpointEmbeddings(
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            huggingfacehub_api_token=os.getenv("HF_TOKEN")
         )
         self.check_collection_exists()
         self.vector_store = QdrantVectorStore(
