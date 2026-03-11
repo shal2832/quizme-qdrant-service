@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient, models
@@ -8,7 +9,7 @@ from fastapi import HTTPException
 
 
 class qdrantService:
-
+    load_dotenv()
     collectionName = 'pdf_chunks'
     
     def __init__(self):
