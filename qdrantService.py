@@ -4,7 +4,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient, models
 from qdrant_client.http import models as rest
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from fastapi import HTTPException
 
 
@@ -22,7 +22,7 @@ class qdrantService:
             chunk_size= 1000,
             chunk_overlap=100
         )
-        self.hf_embeddings = HuggingFaceEndpointEmbeddings(
+        self.hf_embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
         self.check_collection_exists()
@@ -38,7 +38,9 @@ class qdrantService:
             field_schema=rest.PayloadSchemaType.KEYWORD,
         )
         
-
+    def initialize_vector_store(self, docs):
+        self.vector_store.add_documents(documents=docs)
+    
     def set_file_name(self, file_name):
         """
         Get the file name from user input and set it to class variable file_name for all context retreival"
@@ -144,7 +146,7 @@ class qdrantService:
                                 must=[
                                     rest.FieldCondition(
                                         key="metadata.file_id", # Must use the 'metadata.' prefix
-                                        match=rest.MatchValue(value="test.pdf")
+                                        match=rest.MatchValue(value=self.file_name)
                                     )
                                 ]
                             )
