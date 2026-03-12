@@ -26,7 +26,6 @@ class qdrantService:
             model="sentence-transformers/all-MiniLM-L6-v2",
             huggingfacehub_api_token=os.getenv("HF_TOKEN")
         )
-        self.check_collection_exists()
         self.vector_store = QdrantVectorStore(
             client=self.qdrantClient,
             collection_name=self.collectionName,
@@ -41,7 +40,8 @@ class qdrantService:
         
     def initialize_vector_store(self, docs):
         self.vector_store.add_documents(documents=docs)
-    
+        self.check_collection_exists()
+
     def set_file_name(self, file_name):
         """
         Get the file name from user input and set it to class variable file_name for all context retreival"
