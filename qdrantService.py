@@ -26,7 +26,7 @@ class qdrantService:
             model="sentence-transformers/all-MiniLM-L6-v2",
             huggingfacehub_api_token=os.getenv("HF_TOKEN")
         )
-        self.check_collection_exists()
+        
         self.vector_store = QdrantVectorStore(
             client=self.qdrantClient,
             collection_name=self.collectionName,
@@ -40,9 +40,9 @@ class qdrantService:
         )
         
     def initialize_vector_store(self, docs):
-        self.vector_store.add_documents(documents=docs)
         self.check_collection_exists()
-        
+        self.vector_store.add_documents(documents=docs)
+
     def set_file_name(self, file_name):
         """
         Get the file name from user input and set it to class variable file_name for all context retreival"
@@ -60,10 +60,12 @@ class qdrantService:
         """
         existing_collection_names = self.get_collections()
         print(f"Existing collections in Qdrant: {existing_collection_names}")
+        if existing_collection_names:
+            [self.delete_collection(existing_collection) for existing_collection in existing_collection_names]
+        print("Existing collections deleted, ready to create new collection if not present.")
 
-        if self.collectionName not in existing_collection_names:
-            self.create_collection(self.collectionName)
-            print(f"Collection {self.collectionName} created successfully:")
+        self.create_collection(self.collectionName)
+        print(f"Collection {self.collectionName} created successfully:")
     
     def create_collection(self,collection_name):
         """
@@ -82,7 +84,7 @@ class qdrantService:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
     
-    async def delete_collection(self, collection_name):
+    def delete_collection(self, collection_name):
         """
         Delete a collection in Qdrant with the specified name.
         
