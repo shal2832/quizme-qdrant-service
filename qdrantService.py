@@ -41,6 +41,7 @@ class qdrantService:
         
     def initialize_vector_store(self, docs):
         self.vector_store.add_documents(documents=docs)
+        self.check_collection_exists()
 
     def set_file_name(self, file_name):
         """
