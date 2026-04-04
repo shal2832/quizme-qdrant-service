@@ -17,18 +17,12 @@ def list_collections():
 def split_documents(documents: list = Body(..., embed=True)):
     try:
         input_documents = [Document(page_content=document["page_content"], metadata= document["metadata"]) for document in documents]
-        response_documents = qdrant_service_instance.textSplitter.split_documents(input_documents) 
-        return {"message": "Text splitter initialized", "status_code": 200, "documents":response_documents}
+        response_documents = qdrant_service_instance.textSplitter.split_documents(input_documents)
+        print("Splitted the recieved documents with size: ", len(response_documents)) 
+        qdrant_service_instance.initialize_vector_store(response_documents)
+        return {"message": "Stored the splitted documents in vector store", "status_code": 200, "documents":response_documents}
     except Exception as e:
         return {"message": "Error initializing text splitter", "status_code": 500, "error": str(e)}
-    
-@router.post("/store-documents")
-def add_documents(documents: list = Body(..., embed=True)):
-    try:
-        qdrant_service_instance.initialize_vector_store(documents)
-        return {"message": "Documents added to vector store", "status_code": 200}
-    except Exception as e:
-        return {"message": "Error adding documents to vector store", "status_code": 500, "error": str(e)}
 
 @router.post("/query")
 def query_context(query: str = Body(...,embed=True)):
@@ -43,5 +37,6 @@ def get_all_context():
     return {"context": context}
 
 @router.delete("/collection/{name}")
-async def delete_col(name: str):
-    return await qdrant_service_instance.delete_collection(name)
+def delete_col(name: str):
+    response = qdrant_service_instance.delete_collection(name)
+    return {"message": f"Collection {name} deleted", "response": response}
