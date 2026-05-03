@@ -4,8 +4,7 @@ from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient, models
 from qdrant_client.http import models as rest
-from langchain_nomic import NomicEmbeddings
-from langchain_nomic.embeddings import NomicEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from fastapi import HTTPException
 
 
@@ -23,16 +22,16 @@ class qdrantService:
             chunk_size= 1000,
             chunk_overlap=100
         )
-        self.nomic_embeddings = NomicEmbeddings(
-            model="nomic-embed-text-v1",
-            nomic_api_key=os.getenv("nomic_api_key")
+        self.hf_embeddings = HuggingFaceEndpointEmbeddings(
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            huggingfacehub_api_token=os.getenv("HF_TOKEN")
         )
 
         self.check_collection_exists()
         self.vector_store = QdrantVectorStore(
             client=self.qdrantClient,
             collection_name=self.collectionName,
-            embedding=self.nomic_embeddings
+            embedding=self.hf_embeddings
         )
         # This tells Qdrant to build a "Keyword" index for your file_id field
         self.qdrantClient.create_payload_index(
@@ -77,7 +76,7 @@ class qdrantService:
             result = self.qdrantClient.create_collection(
                 collection_name=collection_name,
                 vectors_config=models.VectorParams(
-                    size=768,  # Size of the embedding vector for nomic-embed-text-v1
+                    size=384,  # Size of the embedding vector for sentence-transformers/all-MiniLM-L6-v2
                     distance=models.Distance.COSINE
                 )
             )
@@ -118,7 +117,7 @@ class qdrantService:
         """
         try:
             self.vector_store.from_existing_collection(
-                embedding=self.nomic_embeddings,
+                embedding=self.hf_embeddings,
                 collection_name=self.collectionName,
                 url=os.getenv("qdrant_cluster_url"),
                 api_key= os.getenv("qdrant_api_key")
@@ -138,7 +137,7 @@ class qdrantService:
         """
         try:
             self.vector_store.from_existing_collection(
-                embedding=self.nomic_embeddings,
+                embedding=self.hf_embeddings,
                 collection_name=self.collectionName,
                 url=os.getenv("qdrant_cluster_url"),
                 api_key= os.getenv("qdrant_api_key")
